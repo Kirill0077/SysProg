@@ -1,4 +1,4 @@
-﻿// SharninCL_Client.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+﻿// SharninCL_Username.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 #include "pch.h"
 #include "framework.h"
@@ -13,7 +13,7 @@
 
 map<int, string> ActiveUsers;
 CCriticalSection cs;
-string username = "";
+string Username = "";
 
 void HistoryWrite(string str, string& uname)
 {
@@ -106,7 +106,7 @@ void ProcessMessages()
         {
             RefreshActiveUsers(m.GetData());
             cout << string(100, '\n') << endl;
-            HistoryRead(username);
+            HistoryRead(Username);
             PrintActiveUsers();
         }
         m = Message::Send(MR_BROKER, MT_GETDATA);
@@ -114,9 +114,9 @@ void ProcessMessages()
         {
         case MT_DATA:
         {
-            HistoryWrite((ActiveUsers[m.GetFrom()] + ": " + m.GetData()), username);
+            HistoryWrite((ActiveUsers[m.GetFrom()] + ": " + m.GetData()), Username);
             cout << string(100, '\n') << endl;
-            HistoryRead(username);
+            HistoryRead(Username);
             PrintActiveUsers();
             break;
         }
@@ -141,19 +141,19 @@ int Client()
         cout << "---------------------------" << endl;
         cout << "| PLease, enter User Name |" << endl;
         cout << "---------------------------" << endl;
-        cin >> username;
+        cin >> Username;
         cout << "Nice!" << endl;
-        Message m = Message::Send(MR_BROKER, MT_INIT, username);
+        Message m = Message::Send(MR_BROKER, MT_INIT, Username);
         if (m.GetAction() == MT_DECLINE)
         {
             cout << "Invalid User Name" << endl;
         }
         else
         {
-            HistoryWrite("server: Hello " + username, username);
+            HistoryWrite("server: Hello " + Username, Username);
             cout << string(100, '\n') << endl;
             RefreshActiveUsers(m.GetData());
-            HistoryRead(username);
+            HistoryRead(Username);
             PrintActiveUsers();
             break;
         }
@@ -167,16 +167,16 @@ int Client()
         string str;
         cin.clear();
         getline(cin, str);
-        //cout << str << "-1" << endl;
+        cout << str << "-1" << endl;
         int com = CheckCommands(str);
         switch (com)
         {
         case 0:
         {
-            HistoryWrite("You: " + str, username);
+            HistoryWrite("You: " + str, Username);
             Message::Send(MR_ALL, MT_DATA, str);
             cout << string(100, '\n') << endl;
-            HistoryRead(username);
+            HistoryRead(Username);
             PrintActiveUsers();
             break;
         }
@@ -193,7 +193,7 @@ int Client()
         }
         case 3:
         {
-            cout << "Type:\n/exit to exit;\n/reconect to reconect to the server;\n/whisper [UserName] [Message] to send private message" << endl;
+            cout << "Type:\n/exit to exit;\n/reconect to reconect to the server;\n/whisper [Username] [Message] to send private message" << endl;
             break;
         }
         case 4:
@@ -204,10 +204,10 @@ int Client()
         }
         default:
         {
-            HistoryWrite("You whisperd to " + to_string(com) + ": " + str, username);
+            HistoryWrite("You whisperd to " + to_string(com) + ": " + str, Username);
             Message::Send(com, MT_DATA, ("(private) ") + str);
             cout << string(100, '\n') << endl;
-            HistoryRead(username);
+            HistoryRead(Username);
             PrintActiveUsers();
             break;
         }
@@ -241,7 +241,7 @@ int main()
             int ExitCode = 1;
             while (ExitCode != 0)
                 ExitCode = Client();
-            if (remove(("history" + username + ".dat").c_str()) != 0)
+            if (remove(("history" + Username + ".dat").c_str()) != 0)
                 perror("Error deleting file");
             else
                 puts("File successfully deleted");
