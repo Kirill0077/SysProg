@@ -13,7 +13,48 @@
 
 map<int, string> ActiveUsers;
 CCriticalSection cs;
-string Username = "";
+string username = "";
+
+string getpass(const char* prompt, bool show_asterisk = true)
+{
+    const char BACKSPACE = 8;
+    const char RETURN = 13;
+
+    string password;
+    unsigned char ch = 0;
+
+    cout << prompt << endl;
+
+    DWORD con_mode;
+    DWORD dwRead;
+
+    HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+
+    GetConsoleMode(hIn, &con_mode);
+    SetConsoleMode(hIn, con_mode & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT));
+
+    while (ReadConsoleA(hIn, &ch, 1, &dwRead, NULL) && ch != RETURN)
+    {
+        if (ch == BACKSPACE)
+        {
+            if (password.length() != 0)
+            {
+                if (show_asterisk)
+                    cout << "\b \b";
+                password.resize(password.length() - 1);
+            }
+        }
+        else
+        {
+            password += ch;
+            if (show_asterisk)
+                cout << '*';
+        }
+    }
+    cout << endl;
+    SetConsoleMode(hIn, con_mode);
+    return password;
+}
 
 void HistoryWrite(string str, string& uname)
 {
@@ -51,7 +92,6 @@ void PrintActiveUsers()
         cout << user.second << "(" << user.first << "); ";
     }
     cout << endl;
-    cout << "__________________________________________\n" << endl;
 }
 
 void RefreshActiveUsers(string str)
@@ -106,7 +146,7 @@ void ProcessMessages()
         {
             RefreshActiveUsers(m.GetData());
             cout << string(100, '\n') << endl;
-            HistoryRead(Username);
+            HistoryRead(username);
             PrintActiveUsers();
         }
         m = Message::Send(MR_BROKER, MT_GETDATA);
@@ -114,9 +154,9 @@ void ProcessMessages()
         {
         case MT_DATA:
         {
-            HistoryWrite((ActiveUsers[m.GetFrom()] + ": " + m.GetData()), Username);
+            HistoryWrite((ActiveUsers[m.GetFrom()] + ": " + m.GetData()), username);
             cout << string(100, '\n') << endl;
-            HistoryRead(Username);
+            HistoryRead(username);
             PrintActiveUsers();
             break;
         }
@@ -125,7 +165,7 @@ void ProcessMessages()
             m = Message::Send(MR_BROKER, MT_EXIT);
             ExitFlag = false;
         default:
-            Sleep(60000);
+            Sleep(1000);
             break;
         }
     }
@@ -138,22 +178,23 @@ int Client()
 
     while (true)
     {
+        string pass = "";
         cout << "---------------------------" << endl;
         cout << "| PLease, enter User Name |" << endl;
         cout << "---------------------------" << endl;
-        cin >> Username;
-        cout << "Nice!" << endl;
-        Message m = Message::Send(MR_BROKER, MT_INIT, Username);
+        cin >> username;
+        pass = getpass("Enter password", true);
+        Message m = Message::Send(MR_BROKER, MT_INIT, username + ' ' + pass);
         if (m.GetAction() == MT_DECLINE)
         {
             cout << "Invalid User Name" << endl;
         }
         else
         {
-            HistoryWrite("server: Hello " + Username, Username);
+            HistoryWrite(m.GetData() + "\nserver: Hello " + username, username);
             cout << string(100, '\n') << endl;
-            RefreshActiveUsers(m.GetData());
-            HistoryRead(Username);
+            //RefreshActiveUsers(m.GetData());
+            HistoryRead(username);
             PrintActiveUsers();
             break;
         }
@@ -167,16 +208,15 @@ int Client()
         string str;
         cin.clear();
         getline(cin, str);
-        cout << str << "-1" << endl;
         int com = CheckCommands(str);
         switch (com)
         {
         case 0:
         {
-            HistoryWrite("You: " + str, Username);
+            HistoryWrite("You: " + str, username);
             Message::Send(MR_ALL, MT_DATA, str);
             cout << string(100, '\n') << endl;
-            HistoryRead(Username);
+            HistoryRead(username);
             PrintActiveUsers();
             break;
         }
@@ -193,7 +233,7 @@ int Client()
         }
         case 3:
         {
-            cout << "Type:\n/exit to exit;\n/reconect to reconect to the server;\n/whisper [Username] [Message] to send private message" << endl;
+            cout << "Type:\n/exit to exit;\n/reconect to reconect to the server;\n/whisper [UserName] [Message] to send private message" << endl;
             break;
         }
         case 4:
@@ -204,10 +244,10 @@ int Client()
         }
         default:
         {
-            HistoryWrite("You whisperd to " + to_string(com) + ": " + str, Username);
+            HistoryWrite("You whisperd to " + to_string(com) + ": " + str, username);
             Message::Send(com, MT_DATA, ("(private) ") + str);
             cout << string(100, '\n') << endl;
-            HistoryRead(Username);
+            HistoryRead(username);
             PrintActiveUsers();
             break;
         }
@@ -241,7 +281,7 @@ int main()
             int ExitCode = 1;
             while (ExitCode != 0)
                 ExitCode = Client();
-            if (remove(("history" + Username + ".dat").c_str()) != 0)
+            if (remove(("history" + username + ".dat").c_str()) != 0)
                 perror("Error deleting file");
             else
                 puts("File successfully deleted");
@@ -256,4 +296,4 @@ int main()
     }
 
     return nRetCode;
-}
+}}

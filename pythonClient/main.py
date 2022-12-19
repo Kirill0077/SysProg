@@ -78,7 +78,8 @@ class UsernameWindow:
         self.frame = Frame(self.usrwnd,bg="#00a86b")
         self.lbl = Label(self.usrwnd, text='ENTER NAME',font='Arial 14 bold', bg="#00cccc",fg="white")
         self.usrname = Entry(self.usrwnd,font=("Century gothic",14))
-
+        self.lbl2 = Label(self.usrwnd, text='ENTER PASSWORD',font='Arial 14 bold', bg="#00cccc",fg="white")
+        self.password = Entry(self.usrwnd ,font=("Century gothic",14),show="*")
         self.ackbtn = Button(self.usrwnd, command=self.AckUsername, text='SEND',bg="#cc7722", fg="white",width=30,font="Arial 20 bold")
         self.InitUI()
 
@@ -87,26 +88,31 @@ class UsernameWindow:
         self.usrwnd.grab_set()
         self.usrwnd['bg'] = '#00a86b'
         self.usrwnd.title('PyClient')
-        self.usrwnd.geometry('400x100')
+        self.usrwnd.geometry('400x300')
         self.usrwnd.resizable(width=False, height=False)
         self.frame.place(relwidth=1, relheight=1)
         self.lbl.pack(pady=10)
-        self.usrname.pack(side=LEFT,pady=10,padx=20)
-        self.ackbtn.pack(side=RIGHT,pady=10,padx=30)
+        self.usrname.pack(pady=10,padx=20)
+        self.lbl2.pack(pady=10)
+        self.password.pack(pady=10,padx=20)
+        self.ackbtn.pack(pady=10,padx=30)
         self.ackbtn['font']='BOLD'
     def AckUsername(self):
         if (self.usrname.get() != ''):
-            m = msg.Message.SendMessage(msg.MR_BROKER, msg.MT_INIT, self.usrname.get())
+            m = msg.Message.SendMessage(msg.MR_BROKER, msg.MT_INIT, self.usrname.get()+" "+self.password.get())
             if (m.Header.hactioncode == msg.MT_DECLINE):
-                messagebox.showerror('Wrong username')
+                messagebox.showerror('Wrong username or password')
                 self.usrname.delete(0, 'end')
+                self.password.delete(0, 'end')
             else:
                 self.app.username = self.usrname.get()
 
                 self.app.MsgList.insert(1, f"Server: Hello {self.app.username}!")
-                if (os.path.exists(path+'history'+self.app.username+'.txt')):
-                    self.app.MsgList.insert('end', "nice")
-                    HistoryRead(self.app,self.app.username)
+                for p in m.Data.split('\n'):
+                    self.app.MsgList.insert('end', p)
+                #if (os.path.exists(path+'history'+self.app.username+'.txt')):
+                 #   self.app.MsgList.insert('end', "nice")
+                  #  HistoryRead(self.app,self.app.username)
                 t = threading.Thread(target=ProcessMessages, args=(self.app,))
                 t.start()
                 self.usrwnd.grab_release()
@@ -121,7 +127,7 @@ def ProcessMessages(app):
         m = msg.Message.SendMessage(msg.MR_BROKER, msg.MT_GETDATA)
         if m.Header.hactioncode == msg.MT_DATA:
             app.MsgList.insert('end', f"{app.ActiveUsers[m.Header.hfrom]}: {m.Data}")
-            HistoryWrite(app.username,f"{app.ActiveUsers[m.Header.hfrom]}: {m.Data}")
+           # HistoryWrite(app.username,f"{app.ActiveUsers[m.Header.hfrom]}: {m.Data}")
         elif m.Header.hactioncode == msg.MT_EXIT:
             m = msg.Message.SendMessage(msg.MR_BROKER, msg.MT_EXIT)
             app.root.destroy()

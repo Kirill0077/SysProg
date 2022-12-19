@@ -30,5 +30,6 @@
 #include <map>
 #include <fstream>
 #include <stdio.h>
+#include <windows.h>
 
 using namespace std;

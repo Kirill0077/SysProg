@@ -27,7 +27,7 @@ namespace SharpClient
         {
             if (Client_Text.Text != "")
             {
-                var m = Message.send(MessageRecipients.MR_BROKER, MessageTypes.MT_INIT, Client_Text.Text);
+                var m = Message.send(MessageRecipients.MR_BROKER, MessageTypes.MT_INIT, Client_Text.Text+" "+passText.Text);
                 if (m.GetAction() == MessageTypes.MT_DECLINE)
                 {
                     MessageBox.Show("Error");
@@ -37,12 +37,15 @@ namespace SharpClient
                 {
                     Chat.Client = Client_Text.Text;
                     formref.Enabled = true;
+                    string[] parts = m.GetData().Split(new[] { '\n' });
+                    foreach (string part in parts)
+                        mlbref.Items.Add(part);
                     mlbref.Items.Add($"server: Hello {Client_Text.Text}!");
-                    if (File.Exists(Chat.path_user + "history" + Chat.Client+".txt"))
+                   /* if (File.Exists(Chat.path_user + "history" + Chat.Client+".txt"))
                     {
                         mlbref.Items.Add("nice");
                         Chat.HistoryRead(Chat.Client, ref mlbref);
-                    }
+                    }*/
                     Thread t = new Thread(() => Chat.ProcessMessages(ref this.formref, ref this.mlbref, ref this.ulbref));
                     t.Start();
                     this.Close();

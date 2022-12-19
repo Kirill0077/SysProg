@@ -42,7 +42,7 @@ namespace SharpClient
         public int hsize;
     };
 
-    internal class Message
+    public class Message
     {
         private MessageHeader header;
         private string data;

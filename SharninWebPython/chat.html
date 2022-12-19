@@ -1,10 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+<title>TRIS Chat</title>
 </head>
 <body>
-$END$
+
+<form method="GET" action="/cgi-bin/test.py">
+    <h1>Hi</h1>
+<select name=SelectName size=10>
+<option value=1>All users</option>
+</select>
+<textarea nname=chat rows=11 cols=50 wrap=virtual>
+</textarea>
+
+<br><input type=text name=message size=50>
+
+<input type=submit value="Send">
+</form>
 </body>
 </html>

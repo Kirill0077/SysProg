@@ -32,6 +32,8 @@
             this.ClientName_But = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.Client_Text = new System.Windows.Forms.TextBox();
+            this.passText = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // ClientName_But
@@ -55,7 +57,7 @@
             this.label1.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.label1.Font = new System.Drawing.Font("Showcard Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.Color.GreenYellow;
-            this.label1.Location = new System.Drawing.Point(34, 78);
+            this.label1.Location = new System.Drawing.Point(48, 92);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(131, 26);
@@ -74,6 +76,28 @@
             this.Client_Text.TabIndex = 2;
             this.Client_Text.Text = "name";
             // 
+            // passText
+            // 
+            this.passText.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.passText.Location = new System.Drawing.Point(235, 173);
+            this.passText.Multiline = true;
+            this.passText.Name = "passText";
+            this.passText.Size = new System.Drawing.Size(419, 34);
+            this.passText.TabIndex = 3;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label2.Font = new System.Drawing.Font("Showcard Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label2.ForeColor = System.Drawing.Color.GreenYellow;
+            this.label2.Location = new System.Drawing.Point(23, 181);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(188, 26);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "ENTER PASSWORD";
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 21F);
@@ -81,6 +105,8 @@
             this.BackColor = System.Drawing.Color.Aquamarine;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1019, 466);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.passText);
             this.Controls.Add(this.Client_Text);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ClientName_But);
@@ -100,5 +126,7 @@
         private Button ClientName_But;
         private Label label1;
         private TextBox Client_Text;
+        private TextBox passText;
+        private Label label2;
     }
 }
